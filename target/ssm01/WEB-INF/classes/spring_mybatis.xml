@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+          http://www.springframework.org/schema/context
+          http://www.springframework.org/schema/context/spring-context-4.0.xsd
+           http://www.springframework.org/schema/aop
+                http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
+
+    <!--开启注解扫描,扫描业务逻辑层叠的注解-->
+    <context:component-scan base-package="com.jxd.emp.service"/>
+
+    <!--加载一下db.properties-->
+    <context:property-placeholder location="classpath:db.properties"/>
+
+    <!--配置数据源组件-->
+    <!--创建数据库连接池-->
+    <!--这里我们采用第三方框架c3p0提供的类进行组件创建，也可以选择其他方式-->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${jdbc.driver}"/>
+        <property name="jdbcUrl" value="${jdbc.url}"/>
+        <property name="user" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+
+    <!--创建会话工厂组件-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--引用数据源-->
+        <property name="dataSource" ref="dataSource"/>
+        <!--配置mapper文件的扫描路径-->
+        <property name="mapperLocations" value="classpath:mapper/*.xml"/>
+
+        <!--设置别名,该报下所有的类都有别名，别名就是类名-->
+        <property name="typeAliasesPackage" value="com.jxd.emp.model"/>
+    </bean>
+
+    <!--sql会话的创建以及dao层代理对象的创建-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--设置dao接口的扫描路径-->
+        <property name="basePackage" value="com.jxd.emp.dao"/>
+        <!--引用会话工厂-->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+    </bean>
+
+    <!--以上操作完成之后，会话工厂、sql会话、dao层对象这些组件都已经在容器中存在-->
+
+
+</beans>

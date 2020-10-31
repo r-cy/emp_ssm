@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace接口的全路径，用于关联dao层接口-->
+<mapper namespace="com.jxd.emp.dao.IEmpDao">
+    <select id="selectAll" resultType="com.jxd.emp.model.Emp">
+        select empno,ename,job from emps
+        <if test="ename !=null and ename != ''">
+            where ename like concat('%',#{ename},'%')
+        </if>
+        order by empno
+    </select>
+
+    <select id="selectByPage" resultType="com.jxd.emp.model.Emp">
+        select empno,ename,job,sal from emps
+        <if test="ename !=null and ename != ''">
+            where ename like concat('%',#{ename},'%')
+        </if>
+        <!--先排序后分页-->
+        order by empno
+        limit #{pageStart},#{pageSize}
+    </select>
+
+    <insert id="insertEmp" parameterType="com.jxd.emp.model.Emp">
+        insert into emps (ename,job,sal,deptno) values (#{ename},#{job},#{sal},#{deptno})
+    </insert>
+    <update id="editEmp" parameterType="com.jxd.emp.model.Emp">
+        update emps set ename = #{ename},job = #{job},sal = #{sal} where empno = #{empno}
+    </update>
+
+
+    <select id="selectEmpByEmpno" resultType="Emp">
+        select empno,ename,job,sal from emps where empno = #{empno}
+    </select>
+
+    <select id="selectAllDept" resultType="java.util.HashMap">
+        select deptno,dname from dept
+    </select>
+    <select id="selectAllJob" resultType="java.util.HashMap">
+        select job from emps
+    </select>
+
+    <delete id="deleteById">
+        delete from emps where empno in (
+        <foreach collection="array" item="empno" separator=",">
+            #{empno}
+        </foreach>
+        )
+    </delete>
+</mapper>
